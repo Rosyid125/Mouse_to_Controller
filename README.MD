@@ -2,7 +2,7 @@
 
 1. Make sure you have Python installed on your computer.
 2. Install the latest version of vJoy from: [https://sourceforge.net/projects/vjoystick/](https://sourceforge.net/projects/vjoystick/). Also... make sure that vjoy is running.
-3. Install dependencies by running: `composer install pyautogui pynput pyvjoy`
+3. Install dependencies by running: `pip install pyautogui pynput pyvjoy`
 4. Run the script using: `python mouseToJoy.py`
 
 # What is this?
