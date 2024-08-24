@@ -32,11 +32,11 @@ def on_scroll(x, y, dx, dy):
     #     (x, y)))
     if dy < 0:
         j.set_button(2, 1)
-        time.sleep(0.1)
+        time.sleep(0.01)
         j.set_button(2, 0)
     elif dy > 0:
         j.set_button(3, 1)
-        time.sleep(0.1)
+        time.sleep(0.01)
         j.set_button(3, 0)
 
 # Collect events until released (ini blocking ya jadi nanti ctrl c nya nggak bisa digunakan untuk terminate)
