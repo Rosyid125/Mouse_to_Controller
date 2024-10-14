@@ -4,6 +4,8 @@ import time
 import sys
 from pynput import mouse
 import tkinter as tk
+import ttkbootstrap as ttk
+import ctypes
 
 # Checking the env that is now used
 print(sys.executable)
@@ -45,9 +47,23 @@ screen_width, screen_height = pyautogui.size()
 def normalize(value, max_value):
     return int((value / max_value) * 0x8000)  # Normalized to 0-32767
 
-# Create Tkinter window
-root = tk.Tk()
+# Membuat window dengan ttkbootstrap
+root = ttk.Window(themename="darkly")
 root.title("Mouse to vJoy")
+root.attributes("-topmost", True)  # Membuat jendela tetap di atas
+
+# Mengatur window transparan
+root.attributes("-alpha", 0.7)  # Menyesuaikan nilai alpha untuk tingkat transparansi (0.0 - 1.0)
+root.overrideredirect(True)  # Menghilangkan border dan title bar, soalnya kalau ditampilkan jg gabisa ditekan hehe
+
+# Mendapatkan handle jendela Tkinter
+root.update_idletasks()
+hwnd = ctypes.windll.user32.GetParent(root.winfo_id())
+
+# Atur jendela untuk tembus klik menggunakan Windows API
+# WS_EX_LAYERED = 0x00080000, WS_EX_TRANSPARENT = 0x00000020
+ctypes.windll.user32.SetWindowLongW(hwnd, -20, 
+    ctypes.windll.user32.GetWindowLongW(hwnd, -20) | 0x00080000 | 0x00000020)
 
 # Variables for the sliders
 x_left = tk.IntVar()
@@ -63,24 +79,24 @@ frame.pack()
 frame_y = tk.Frame(frame)
 frame_y.grid(row=1, column=1)
 
-# Create Y-Up slider (top of the layout)
-slider_y_up = tk.Scale(frame_y, from_=16383, to=0, variable=y_up, label="Up", orient=tk.VERTICAL)
+# Create Y-Up slider (top of the layout) with green style
+slider_y_up = ttk.Scale(frame_y, from_=16383, to=0, variable=y_up, bootstyle="success", orient=tk.VERTICAL, length=200)
 slider_y_up.pack()
 
-# Create Y-Down slider (bottom of the layout)
-slider_y_down = tk.Scale(frame_y, from_=0, to=16383, variable=y_down, label="Dn", orient=tk.VERTICAL)
+# Create Y-Down slider (bottom of the layout) with red style
+slider_y_down = ttk.Scale(frame_y, from_=0, to=16383, variable=y_down, bootstyle="danger", orient=tk.VERTICAL, length=200)
 slider_y_down.pack()
 
 # Create a subframe for X axis (horizontal layout)
 frame_x = tk.Frame(frame)
 frame_x.grid(row=2, column=1)
 
-# Create X-Left slider (left of the layout)
-slider_x_left = tk.Scale(frame_x, from_=16383, to=0, variable=x_left, label="lft", orient=tk.HORIZONTAL)
+# Create X-Left slider (left of the layout) - using default style
+slider_x_left = ttk.Scale(frame_x, from_=16383, to=0, variable=x_left, bootstyle="info", orient=tk.HORIZONTAL, length=100)
 slider_x_left.pack(side=tk.LEFT)
 
-# Create X-Right slider (right of the layout)
-slider_x_right = tk.Scale(frame_x, from_=0, to=16383, variable=x_right, label="Rgt", orient=tk.HORIZONTAL)
+# Create X-Right slider (right of the layout) - using default style
+slider_x_right = ttk.Scale(frame_x, from_=0, to=16383, variable=x_right, bootstyle="warning", orient=tk.HORIZONTAL, length=100)
 slider_x_right.pack(side=tk.RIGHT)
 
 # Function to update joystick and sliders
