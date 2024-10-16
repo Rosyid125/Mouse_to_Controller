@@ -83,10 +83,6 @@ frame_y.grid(row=1, column=1)
 slider_y_up = ttk.Scale(frame_y, from_=16383, to=0, variable=y_up, bootstyle="success", orient=tk.VERTICAL, length=200)
 slider_y_up.pack()
 
-# Create Y-Down slider (bottom of the layout) with red style
-slider_y_down = ttk.Scale(frame_y, from_=0, to=16383, variable=y_down, bootstyle="danger", orient=tk.VERTICAL, length=200)
-slider_y_down.pack()
-
 # Create a subframe for X axis (horizontal layout)
 frame_x = tk.Frame(frame)
 frame_x.grid(row=2, column=1)
@@ -98,6 +94,15 @@ slider_x_left.pack(side=tk.LEFT)
 # Create X-Right slider (right of the layout) - using default style
 slider_x_right = ttk.Scale(frame_x, from_=0, to=16383, variable=x_right, bootstyle="warning", orient=tk.HORIZONTAL, length=100)
 slider_x_right.pack(side=tk.RIGHT)
+
+# Create a subframe for Y axis again (horizontal layout)
+frame_y2 = tk.Frame(frame)
+frame_y2.grid(row=3, column=1)
+
+# Create Y-Down slider (bottom of the layout) with red style
+slider_y_down = ttk.Scale(frame_y2, from_=0, to=16383, variable=y_down, bootstyle="danger", orient=tk.VERTICAL, length=200)
+slider_y_down.pack()
+
 
 # Function to update joystick and sliders
 def update_joystick():
