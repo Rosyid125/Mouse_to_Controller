@@ -5,7 +5,6 @@ import sys
 from pynput import mouse
 import tkinter as tk
 import ttkbootstrap as ttk
-import ctypes
 
 # Checking the env that is now used
 print(sys.executable)
@@ -47,29 +46,49 @@ screen_width, screen_height = pyautogui.size()
 def normalize(value, max_value):
     return int((value / max_value) * 0x8000)  # Normalized to 0-32767
 
+# Fungsi untuk mengupdate panjang balok pada Canvas sesuai dengan nilai slider
+def update_y_up(*args):
+    value = y_up.get()
+    height = int((value / 16383) * 200)
+    canvas_y_up.delete("bar")
+    canvas_y_up.create_rectangle(20, 200 - height, 80, 200, fill="green", tags="bar")
+
+def update_y_down(*args):
+    value = y_down.get()
+    height = int((value / 16383) * 200)
+    canvas_y_down.delete("bar")
+    canvas_y_down.create_rectangle(20, 0, 80, height, fill="red", tags="bar")
+
+def update_x_left(*args):
+    value = x_left.get()
+    width = int((value / 16383) * 50)
+    canvas_x_left.delete("bar")
+    canvas_x_left.create_rectangle(50 - width, 20, 50, 80, fill="blue", tags="bar")
+
+def update_x_right(*args):
+    value = x_right.get()
+    width = int((value / 16383) * 50)
+    canvas_x_right.delete("bar")
+    canvas_x_right.create_rectangle(0, 20, width, 80, fill="orange", tags="bar")
+
 # Membuat window dengan ttkbootstrap
 root = ttk.Window(themename="darkly")
 root.title("Mouse to vJoy")
 root.attributes("-topmost", True)  # Membuat jendela tetap di atas
-
-# Mengatur window transparan
-root.attributes("-alpha", 0.7)  # Menyesuaikan nilai alpha untuk tingkat transparansi (0.0 - 1.0)
-root.overrideredirect(True)  # Menghilangkan border dan title bar, soalnya kalau ditampilkan jg gabisa ditekan hehe
-
-# Mendapatkan handle jendela Tkinter
-root.update_idletasks()
-hwnd = ctypes.windll.user32.GetParent(root.winfo_id())
-
-# Atur jendela untuk tembus klik menggunakan Windows API
-# WS_EX_LAYERED = 0x00080000, WS_EX_TRANSPARENT = 0x00000020
-ctypes.windll.user32.SetWindowLongW(hwnd, -20, 
-    ctypes.windll.user32.GetWindowLongW(hwnd, -20) | 0x00080000 | 0x00000020)
+root.attributes("-alpha", 0.7)     # Menyesuaikan transparansi window
+root.overrideredirect(True)        # Menghilangkan border dan title bar
 
 # Variables for the sliders
 x_left = tk.IntVar()
 x_right = tk.IntVar()
 y_up = tk.IntVar()
 y_down = tk.IntVar()
+
+# Menghubungkan update fungsi dengan perubahan nilai slider
+y_up.trace_add("write", update_y_up)
+y_down.trace_add("write", update_y_down)
+x_left.trace_add("write", update_x_left)
+x_right.trace_add("write", update_x_right)
 
 # Create a frame for the "+" layout
 frame = tk.Frame(root)
@@ -79,34 +98,37 @@ frame.pack()
 frame_y = tk.Frame(frame)
 frame_y.grid(row=1, column=2)
 
-# Create Y-Up slider (top of the layout) with green style
-slider_y_up = ttk.Scale(frame_y, from_=16383, to=0, variable=y_up, bootstyle="success", orient=tk.VERTICAL, length=200)
-slider_y_up.pack()
+# Canvas untuk Y-Up slider (balok hijau)
+canvas_y_up = tk.Canvas(frame_y, width=100, height=200, bg="white")
+canvas_y_up.pack()
+update_y_up()  # Inisialisasi tampilan awal
 
 # Create a subframe for X axis (horizontal layout)
 frame_x = tk.Frame(frame)
 frame_x.grid(row=2, column=1)
 
-# Create X-Left slider (left of the layout) - using default style
-slider_x_left = ttk.Scale(frame_x, from_=16383, to=0, variable=x_left, bootstyle="info", orient=tk.HORIZONTAL, length=100)
-slider_x_left.pack(side=tk.LEFT)
+# Canvas untuk X-Left slider (balok biru)
+canvas_x_left = tk.Canvas(frame_x, width=50, height=100, bg="white")
+canvas_x_left.pack()
+update_x_left()  # Inisialisasi tampilan awal
 
 # Create a subframe for X axis again (horizontal layout)
 frame_x2 = tk.Frame(frame)
 frame_x2.grid(row=2, column=3)
 
-# Create X-Right slider (right of the layout) - using default style
-slider_x_right = ttk.Scale(frame_x2, from_=0, to=16383, variable=x_right, bootstyle="warning", orient=tk.HORIZONTAL, length=100)
-slider_x_right.pack(side=tk.RIGHT)
+# Canvas untuk X-Right slider (balok oranye)
+canvas_x_right = tk.Canvas(frame_x2, width=50, height=100, bg="white")
+canvas_x_right.pack()
+update_x_right()  # Inisialisasi tampilan awal
 
 # Create a subframe for Y axis again (horizontal layout)
 frame_y2 = tk.Frame(frame)
 frame_y2.grid(row=3, column=2)
 
-# Create Y-Down slider (bottom of the layout) with red style
-slider_y_down = ttk.Scale(frame_y2, from_=0, to=16383, variable=y_down, bootstyle="danger", orient=tk.VERTICAL, length=200)
-slider_y_down.pack()
-
+# Canvas untuk Y-Down slider (balok merah)
+canvas_y_down = tk.Canvas(frame_y2, width=100, height=200, bg="white")
+canvas_y_down.pack()
+update_y_down()  # Inisialisasi tampilan awal
 
 # Function to update joystick and sliders
 def update_joystick():
@@ -137,7 +159,7 @@ def update_joystick():
     j.set_axis(pyvjoy.HID_USAGE_Y, joy_y)
 
     # Schedule the function to be called again after 10ms
-    root.after(10, update_joystick)
+    root.after(50, update_joystick) # Lower makes mouse move detection smoother but requires huge cpu usage, normal is 50 ms (same like discord cpu usage when on background)
 
 # Start updating the joystick
 update_joystick()
